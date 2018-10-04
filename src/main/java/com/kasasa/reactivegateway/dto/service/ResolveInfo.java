@@ -1,4 +1,4 @@
-package com.kasasa.reactivegateway.Service;
+package com.kasasa.reactivegateway.dto.service;
 
 import lombok.*;
 

@@ -1,5 +1,5 @@
 
-package com.kasasa.reactivegateway.Service.Middleware;
+package com.kasasa.reactivegateway.middleware;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

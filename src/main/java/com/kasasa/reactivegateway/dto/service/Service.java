@@ -1,6 +1,6 @@
-package com.kasasa.reactivegateway.Service;
+package com.kasasa.reactivegateway.dto.service;
 
-import com.kasasa.reactivegateway.Service.Middleware.MiddlewareType;
+import com.kasasa.reactivegateway.middleware.MiddlewareType;
 import lombok.*;
 
 import java.util.List;

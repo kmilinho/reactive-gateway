@@ -1,14 +1,10 @@
 package com.kasasa.reactivegateway;
 
-import com.kasasa.reactivegateway.handler.GatewayHandler;
-import com.kasasa.reactivegateway.handler.ServiceHandler;
+import com.kasasa.reactivegateway.repository.EndpointRepository;
+import com.kasasa.reactivegateway.repository.ServiceRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.web.reactive.function.server.RequestPredicates;
-import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.RouterFunctions;
-import org.springframework.web.reactive.function.server.ServerResponse;
 
 @SpringBootApplication
 public class ReactiveGatewayApplication {
@@ -18,15 +14,13 @@ public class ReactiveGatewayApplication {
     }
 
     @Bean
-    public RouterFunction<ServerResponse> route(GatewayHandler gatewayHandler) {
+    public ServiceRepository getServiceRepository() {
+        return new ServiceRepository();
+    }
 
-        return RouterFunctions.nest(
-                RequestPredicates.POST("/admin"),
-                RouterFunctions.route(
-                    RequestPredicates.POST("/service"),
-                    ServiceHandler::store
-                )
-            )
-        .andRoute(RequestPredicates.all(), gatewayHandler::handle);
+
+    @Bean
+    public EndpointRepository getEndpointRepository() {
+        return new EndpointRepository();
     }
 }
