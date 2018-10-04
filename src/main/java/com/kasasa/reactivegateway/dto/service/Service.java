@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class Service {
     private String id;
-    private String resolveMethod;
+    private ResolveMethod resolveMethod;
     private ResolveInfo resolveInfo;
     private List<MiddlewareType> inputMiddleware;
     private List<MiddlewareType> outputMiddleware;

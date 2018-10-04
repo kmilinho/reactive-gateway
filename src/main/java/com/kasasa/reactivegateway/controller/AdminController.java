@@ -27,22 +27,12 @@ public class AdminController {
 
     @GetMapping("/service")
     Flux<Service> showAllServices() {
-
-        Service ser = Service.builder()
-                .id("test-id")
-                .build();
-
-        return Flux.fromArray(new Service[]{ser});
+        return serviceRepository.getAllServices();
     }
 
     @GetMapping("/service/{id}")
-    Mono<Service> showService(@PathVariable("id") String serviceId) {
-
-        Service ser = Service.builder()
-                .id(serviceId)
-                .build();
-
-        return Mono.just(ser);
+    Mono<Service> getServiceById(@PathVariable("id") String serviceId) {
+        return serviceRepository.getById(serviceId);
     }
 
     @PostMapping("/service")
