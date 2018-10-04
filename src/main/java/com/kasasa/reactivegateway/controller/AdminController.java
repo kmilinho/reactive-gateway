@@ -42,23 +42,12 @@ public class AdminController {
 
     @GetMapping("/service/{id}/endpoint")
     Flux<Endpoint> showAllServiceEndpoints(@PathVariable("id") String serviceId) {
-        Endpoint endpoint = Endpoint.builder()
-                .id("asdasd")
-                .serviceId(serviceId)
-                .build();
-
-        return Flux.fromArray(new Endpoint[]{endpoint});
+        return endpointRepository.getServiceEndpoints(serviceId);
     }
 
     @GetMapping("/service/{serviceId}/endpoint/{endpointId}")
     Mono<Endpoint> showServiceEndpoint(@PathVariable("serviceId") String serviceId, @PathVariable("endpointId") String endpointId) {
-
-        Endpoint endpoint = Endpoint.builder()
-                .id(endpointId)
-                .serviceId(serviceId)
-                .build();
-
-        return Mono.just(endpoint);
+        return endpointRepository.getServiceEndpoint(serviceId, endpointId);
     }
 
     @PostMapping("/service/{id}/endpoint")
