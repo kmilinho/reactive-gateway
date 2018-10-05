@@ -26,10 +26,8 @@ public class EndpointRepository {
      * @throws NotFoundException
      */
     public Mono<Endpoint> getServiceEndpoint(String serviceId, String endpointId) throws NotFoundException {
-        return getServiceEndpoints(serviceId)
-                .filter((endpoint) -> endpoint.getId().equals(endpointId))
-                .switchIfEmpty(Mono.error(new NotFoundException()))
-                .next();
+        return Mono.justOrEmpty(getEndpointsForServiceOrFail(serviceId).get(endpointId))
+                .switchIfEmpty(Mono.error(new NotFoundException()));
     }
 
     /**
@@ -39,7 +37,7 @@ public class EndpointRepository {
      * @throws NotFoundException
      */
     public Flux<Endpoint> getServiceEndpoints(String serviceId) throws NotFoundException {
-        return Flux.fromStream(() -> getEndpointsForServiceOrFail(serviceId).values().stream());
+        return Flux.fromIterable(getEndpointsForServiceOrFail(serviceId).values());
     }
 
     /**
