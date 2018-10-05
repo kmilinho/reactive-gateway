@@ -60,9 +60,9 @@ public class RouteAdminControllerTests {
                 // then
                 .expectStatus().isBadRequest()
                 .expectBody(Exception.class)
-                .consumeWith(result -> {
-                    Assert.assertEquals("Service not found for 'non-existent'.", result.getResponseBody().getMessage());
-                });
+                .consumeWith(result ->
+                    Assert.assertEquals("Service not found for 'non-existent'.", result.getResponseBody().getMessage())
+                );
     }
 
     @Test
