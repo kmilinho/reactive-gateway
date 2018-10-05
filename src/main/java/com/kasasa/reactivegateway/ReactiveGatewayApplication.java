@@ -5,6 +5,8 @@ import com.kasasa.reactivegateway.repository.ServiceRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.reactive.function.client.WebClient;
+
 @SpringBootApplication
 public class ReactiveGatewayApplication {
 
@@ -21,5 +23,10 @@ public class ReactiveGatewayApplication {
     @Bean
     public EndpointRepository getEndpointRepository() {
         return new EndpointRepository();
+    }
+
+    @Bean()
+    public WebClient getWebClient(){
+      return WebClient.create();
     }
 }

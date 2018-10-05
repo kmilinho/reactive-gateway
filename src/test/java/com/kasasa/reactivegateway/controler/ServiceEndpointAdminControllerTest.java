@@ -55,7 +55,7 @@ public class ServiceEndpointAdminControllerTest {
                 .expectBody(Endpoint.class)
                 .consumeWith((result) -> {
                     Endpoint ep = result.getResponseBody();
-                    Assert.assertEquals("some-id-1", ep.getId());
+                    Assert.assertEquals("some-id-1", ep.getPath());
                     Assert.assertEquals("s1", ep.getServiceId());
                 });
     }
@@ -73,7 +73,7 @@ public class ServiceEndpointAdminControllerTest {
                 .expectBody(Endpoint.class)
                 .consumeWith((result) -> {
                     Endpoint ep = result.getResponseBody();
-                    Assert.assertEquals("some-id-1", ep.getId());
+                    Assert.assertEquals("some-id-1", ep.getPath());
                     Assert.assertEquals("abc", ep.getServiceId());
                 });
     }
@@ -93,9 +93,9 @@ public class ServiceEndpointAdminControllerTest {
                 .hasSize(2)
                 .consumeWith((result) -> {
                     List<Endpoint> endpointList = result.getResponseBody();
-                    Assert.assertEquals("some-id-1", endpointList.get(0).getId());
+                    Assert.assertEquals("some-id-1", endpointList.get(0).getPath());
                     Assert.assertEquals("abc", endpointList.get(0).getServiceId());
-                    Assert.assertEquals("some-id-2", endpointList.get(1).getId());
+                    Assert.assertEquals("some-id-2", endpointList.get(1).getPath());
                     Assert.assertEquals("abc", endpointList.get(1).getServiceId());
                 });
     }
@@ -121,7 +121,7 @@ public class ServiceEndpointAdminControllerTest {
 
     private WebTestClient.ResponseSpec createEndpoint(String serviceId, String endpointId) {
         Endpoint endpoint = Endpoint.builder()
-                .id(endpointId)
+                .path(endpointId)
                 .build();
         return client.post().uri(String.format("/admin/service/%s/endpoint", serviceId)).syncBody(endpoint).exchange();
     }

@@ -65,7 +65,7 @@ public class EndpointRepository {
     private Function<Endpoint, Endpoint> saveEndpoint(String serviceId) {
         return endpoint -> {
             endpoint.setServiceId(serviceId);
-            getEndpointsForService(serviceId).put(endpoint.getId(), endpoint);
+            getEndpointsForService(serviceId).put(endpoint.getPath(), endpoint);
 
             return endpoint;
         };

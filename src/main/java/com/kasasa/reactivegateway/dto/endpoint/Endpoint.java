@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Endpoint {
-    private String id;
+    private String path;
     private String serviceId;
 }
