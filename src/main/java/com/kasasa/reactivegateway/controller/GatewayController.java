@@ -5,6 +5,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.kasasa.reactivegateway.EndpointCaller;
 import com.kasasa.reactivegateway.RouteResolver;
+import com.kasasa.reactivegateway.dto.Endpoint;
+import com.kasasa.reactivegateway.dto.EndpointResponseTuple;
 import com.kasasa.reactivegateway.dto.route.Route;
 import com.kasasa.reactivegateway.middleware.MiddlewareEngine;
 import com.kasasa.reactivegateway.repository.EndpointRepository;
@@ -18,6 +20,8 @@ import reactor.core.publisher.Mono;
 
 import javax.annotation.Priority;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RestController
@@ -51,20 +55,38 @@ public class GatewayController {
 
         request = middlewareEngine.applyMiddleware(route.getInputMiddleware(), request);
 
-        List<Mono<String>> endpointMonoResponses = route.getServiceEndpoints().parallelStream()
+        List<Mono<EndpointResponseTuple>> endpointResponseMonos = route.getServiceEndpoints().parallelStream()
                 .map(serviceEndpoint -> endpointRepository.getServiceEndpoint(serviceEndpoint.getServiceId(), serviceEndpoint.getEndpointPath()))
-                .map(endpointCaller::call)
+                .map(mapToEndpointResponse())
                 .collect(Collectors.toList());
 
-        return Flux.mergeSequential(endpointMonoResponses)
-                .collect(JsonObject::new, (jsonGatewayResponse, stringEndpointResponse) -> {
-                    var newResponse = jsonParser.parse(stringEndpointResponse).getAsJsonObject();
+        return Flux.mergeSequential(endpointResponseMonos)
+                .collect(JsonObject::new, (jsonGatewayResponse, endpointResponseTuple) -> {
 
-                    newResponse.entrySet().forEach(entry ->
-                            //if key is in my output for that endpoint then add the mappedToKey
-                            jsonGatewayResponse.add(entry.getKey(), entry.getValue())
-                    );
+                    var newResponse = jsonParser.parse(endpointResponseTuple.getEndpointResponse()).getAsJsonObject();
+
+                    var wantedParameters = endpointResponseTuple.getEndpoint().getOutputParameters();
+                    if (Objects.nonNull(wantedParameters)) {
+                        newResponse.entrySet().forEach(entry -> {
+
+                            var k = entry.getKey();
+                            var v = entry.getValue();
+
+                            var wanted = wantedParameters.stream().filter(parameter -> parameter.getKey().equals(k)).findFirst();
+
+                            wanted.ifPresent(parameter -> jsonGatewayResponse.add(parameter.getMappedToKey(), v));
+                        });
+                    }
                 })
                 .map(JsonElement::toString);
+    }
+
+    private Function<Endpoint, Mono<EndpointResponseTuple>> mapToEndpointResponse() {
+        return endpoint -> endpointCaller.call(endpoint)
+                .map(monoResponse -> EndpointResponseTuple.builder()
+                        .endpoint(endpoint)
+                        .endpointResponse(monoResponse)
+                        .build()
+                );
     }
 }

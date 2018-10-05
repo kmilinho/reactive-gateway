@@ -1,6 +1,7 @@
 package com.kasasa.reactivegateway.helpers;
 
 import com.kasasa.reactivegateway.dto.Endpoint;
+import com.kasasa.reactivegateway.dto.Parameter;
 import com.kasasa.reactivegateway.dto.route.Route;
 import com.kasasa.reactivegateway.dto.route.ServiceEndpoint;
 import com.kasasa.reactivegateway.dto.service.ResolveInfo;
@@ -10,10 +11,10 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.util.List;
 
-public class ApiClient {
+public class TestApiClient {
     private WebTestClient client;
 
-    public ApiClient(WebTestClient client) {
+    public TestApiClient(WebTestClient client) {
         this.client = client;
     }
 
@@ -48,6 +49,15 @@ public class ApiClient {
         Endpoint endpoint = Endpoint.builder()
                 .serviceId(serviceId)
                 .path(endpointPath)
+                .build();
+        return client.post().uri(String.format("/admin/service/%s/endpoint", serviceId)).syncBody(endpoint).exchange();
+    }
+
+    public WebTestClient.ResponseSpec createEndpoint(String serviceId, String endpointPath, List<Parameter> outputParameter) {
+        Endpoint endpoint = Endpoint.builder()
+                .serviceId(serviceId)
+                .path(endpointPath)
+                .outputParameters(outputParameter)
                 .build();
         return client.post().uri(String.format("/admin/service/%s/endpoint", serviceId)).syncBody(endpoint).exchange();
     }

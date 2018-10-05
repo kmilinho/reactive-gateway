@@ -1,9 +1,8 @@
 package com.kasasa.reactivegateway.controller;
 
-import com.kasasa.reactivegateway.dto.Endpoint;
 import com.kasasa.reactivegateway.dto.route.Route;
 import com.kasasa.reactivegateway.dto.route.ServiceEndpoint;
-import com.kasasa.reactivegateway.helpers.ApiClient;
+import com.kasasa.reactivegateway.helpers.TestApiClient;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,12 +24,12 @@ public class RouteAdminControllerTests {
 
     private WebTestClient client;
 
-    private ApiClient apiClient;
+    private TestApiClient testApiClient;
 
     @Before
     public void setUp() {
         client = WebTestClient.bindToApplicationContext(context).build();
-        apiClient = new ApiClient(client);
+        testApiClient = new TestApiClient(client);
     }
 
     @Test
@@ -56,7 +55,7 @@ public class RouteAdminControllerTests {
         );
 
         //when
-        apiClient.createRoute(gatewayPath, endpoints)
+        testApiClient.createRoute(gatewayPath, endpoints)
 
                 // then
                 .expectStatus().isBadRequest();
@@ -68,8 +67,8 @@ public class RouteAdminControllerTests {
         String gatewayPath = "/testCreateRoute/path";
         String serviceId = "testCreateRoute";
         String endpointPath = "/other/testCreateRoute/path";
-        apiClient.createService(serviceId, "https://jsonplaceholder.typicode.com");
-        apiClient.createEndpoint(serviceId, endpointPath);
+        testApiClient.createService(serviceId, "https://jsonplaceholder.typicode.com");
+        testApiClient.createEndpoint(serviceId, endpointPath);
 
         List<ServiceEndpoint> endpoints = List.of(ServiceEndpoint.builder()
                 .serviceId(serviceId)
@@ -78,7 +77,7 @@ public class RouteAdminControllerTests {
         );
 
         //when
-        apiClient.createRoute(gatewayPath, endpoints)
+        testApiClient.createRoute(gatewayPath, endpoints)
 
                 // then
                 .expectStatus().isOk()
@@ -97,10 +96,10 @@ public class RouteAdminControllerTests {
         String gatewayPath = "/testGetAllRoutes/path";
         String serviceId = "testGetAllRoutes";
         String endpointPath = "/other/testGetAllRoutes/path";
-        apiClient.createService(serviceId, "https://jsonplaceholder.typicode.com");
-        apiClient.createEndpoint(serviceId, endpointPath);
+        testApiClient.createService(serviceId, "https://jsonplaceholder.typicode.com");
+        testApiClient.createEndpoint(serviceId, endpointPath);
         List<ServiceEndpoint> endpoints = List.of(ServiceEndpoint.builder().serviceId(serviceId).endpointPath(endpointPath).build());
-        apiClient.createRoute(gatewayPath, endpoints);
+        testApiClient.createRoute(gatewayPath, endpoints);
 
         //when
         client.get().uri("admin/route").exchange()

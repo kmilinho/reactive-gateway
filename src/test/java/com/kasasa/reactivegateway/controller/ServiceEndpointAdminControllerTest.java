@@ -2,7 +2,7 @@ package com.kasasa.reactivegateway.controller;
 
 import com.kasasa.reactivegateway.dto.Endpoint;
 import com.kasasa.reactivegateway.dto.service.Service;
-import com.kasasa.reactivegateway.helpers.ApiClient;
+import com.kasasa.reactivegateway.helpers.TestApiClient;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,12 +24,12 @@ public class ServiceEndpointAdminControllerTest {
 
     private WebTestClient client;
 
-    private ApiClient apiClient;
+    private TestApiClient testApiClient;
 
     @Before
     public void setUp() {
         client = WebTestClient.bindToApplicationContext(context).build();
-        apiClient = new ApiClient(client);
+        testApiClient = new TestApiClient(client);
     }
 
     @Test
@@ -42,7 +42,7 @@ public class ServiceEndpointAdminControllerTest {
     @Test
     public void testFailsWhenEndpointPathNotFound() {
         // when
-        apiClient.createEndpoint("s2", "some-id-1");
+        testApiClient.createEndpoint("s2", "some-id-1");
 
         // then
         client.get().uri("/admin/service/s2/endpoint/some-other-id")
@@ -66,7 +66,7 @@ public class ServiceEndpointAdminControllerTest {
     @Test
     public void testCreateEndpoint() {
         // when
-        apiClient.createEndpoint("s1", "some-id-1")
+        testApiClient.createEndpoint("s1", "some-id-1")
 
                 // then
                 .expectStatus().isOk()
@@ -81,7 +81,7 @@ public class ServiceEndpointAdminControllerTest {
     @Test
     public void testGetsEndpoint() {
         // given
-        apiClient.createEndpoint("abc", "some-id-1");
+        testApiClient.createEndpoint("abc", "some-id-1");
 
         // when
         client.get().uri("/admin/service/abc/endpoint/some-id-1").exchange()
@@ -99,8 +99,8 @@ public class ServiceEndpointAdminControllerTest {
     @Test
     public void testGetsEndpoints() {
         // given
-        apiClient.createEndpoint("abc", "some-id-1");
-        apiClient.createEndpoint("abc", "some-id-2");
+        testApiClient.createEndpoint("abc", "some-id-1");
+        testApiClient.createEndpoint("abc", "some-id-2");
 
         // when
         client.get().uri("/admin/service/abc/endpoint").exchange()
@@ -121,7 +121,7 @@ public class ServiceEndpointAdminControllerTest {
     @Test
     public void testDeletesEndpoint() {
         // given
-        apiClient.createEndpoint("for-delete", "deleted-id-1");
+        testApiClient.createEndpoint("for-delete", "deleted-id-1");
         client.get().uri("/admin/service/for-delete/endpoint/deleted-id-1").exchange().expectStatus().isOk();
 
         // when

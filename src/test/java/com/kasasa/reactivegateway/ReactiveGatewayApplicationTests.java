@@ -1,7 +1,8 @@
 package com.kasasa.reactivegateway;
 
+import com.kasasa.reactivegateway.dto.Parameter;
 import com.kasasa.reactivegateway.dto.route.ServiceEndpoint;
-import com.kasasa.reactivegateway.helpers.ApiClient;
+import com.kasasa.reactivegateway.helpers.TestApiClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,12 +23,12 @@ public class ReactiveGatewayApplicationTests {
 
     private WebTestClient client;
 
-    private ApiClient apiClient;
+    private TestApiClient testApiClient;
 
     @Before
     public void setUp() {
         client = WebTestClient.bindToApplicationContext(context).build();
-        apiClient = new ApiClient(client);
+        testApiClient = new TestApiClient(client);
     }
 
     @Test
@@ -46,32 +47,63 @@ public class ReactiveGatewayApplicationTests {
         String serviceId = "testResolvesRoute-service";
         String endpointPath1 = "/users/1";
         String endpointPath2 = "/todos/1";
-        apiClient.createService(serviceId, "https://jsonplaceholder.typicode.com");
-        apiClient.createEndpoint(serviceId, endpointPath1);
-        apiClient.createEndpoint(serviceId, endpointPath2);
+
+        String authorsServiceId = "authorsService";
+        String autorsGetAllPath = "/hackathon/reactive-gateway/authors";
+
+        testApiClient.createService(serviceId, "https://jsonplaceholder.typicode.com");
+
+        testApiClient.createService(authorsServiceId, "http://demo0124104.mockable.io");
+
+
+        var parameters1 = List.of(
+                Parameter.builder().key("name").mappedToKey("userName").build(),
+                Parameter.builder().key("email").mappedToKey("userEmail").build()
+        );
+
+        var parameters2 = List.of(
+                Parameter.builder().key("title").mappedToKey("taskTitle").build(),
+                Parameter.builder().key("completed").mappedToKey("isTaskCompleted").build()
+        );
+
+        var parameters3 = List.of(
+                Parameter.builder().key("authors").mappedToKey("authors").build()
+        );
+
+        testApiClient.createEndpoint(serviceId, endpointPath1, parameters1);
+        testApiClient.createEndpoint(serviceId, endpointPath2, parameters2);
+        testApiClient.createEndpoint(authorsServiceId, autorsGetAllPath, parameters3);
+
+
         List<ServiceEndpoint> endpoints = List.of(
-            ServiceEndpoint.builder()
-                .serviceId(serviceId)
-                .endpointPath(endpointPath1)
-                .build(),
-            ServiceEndpoint.builder()
-                .serviceId(serviceId)
-                .endpointPath(endpointPath2)
-                .build()
+                ServiceEndpoint.builder()
+                        .serviceId(serviceId)
+                        .endpointPath(endpointPath1)
+                        .build(),
+                ServiceEndpoint.builder()
+                        .serviceId(serviceId)
+                        .endpointPath(endpointPath2)
+                        .build(),
+                ServiceEndpoint.builder()
+                        .serviceId(authorsServiceId)
+                        .endpointPath(autorsGetAllPath)
+                        .build()
         );
 
         //when
-        apiClient.createRoute(gatewayPath, endpoints)
+        testApiClient.createRoute(gatewayPath, endpoints)
 
                 //then
                 .expectStatus().isOk();
 
         //when
         client.get().uri(gatewayPath).exchange()
-
                 //then
-                .expectStatus().isOk();
-
-        // TODO Verify merged responses
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .consumeWith(body -> {
+                    System.out.println("it works: ");
+                    System.out.println(body.getResponseBody());
+                });
     }
 }

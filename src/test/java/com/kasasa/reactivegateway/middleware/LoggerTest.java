@@ -1,7 +1,7 @@
 package com.kasasa.reactivegateway.middleware;
 
 import com.kasasa.reactivegateway.dto.route.ServiceEndpoint;
-import com.kasasa.reactivegateway.helpers.ApiClient;
+import com.kasasa.reactivegateway.helpers.TestApiClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,12 +22,12 @@ public class LoggerTest {
 
     private WebTestClient client;
 
-    private ApiClient apiClient;
+    private TestApiClient apiClient;
 
     @Before
     public void setUp() {
         client = WebTestClient.bindToApplicationContext(context).build();
-        apiClient = new ApiClient(client);
+        apiClient = new TestApiClient(client);
     }
 
     @Test

@@ -3,7 +3,7 @@ package com.kasasa.reactivegateway.controller;
 import com.kasasa.reactivegateway.dto.service.ResolveInfo;
 import com.kasasa.reactivegateway.dto.service.ResolveMethod;
 import com.kasasa.reactivegateway.dto.service.Service;
-import com.kasasa.reactivegateway.helpers.ApiClient;
+import com.kasasa.reactivegateway.helpers.TestApiClient;
 import com.kasasa.reactivegateway.middleware.MiddlewareType;
 import org.junit.Assert;
 import org.junit.Before;
@@ -28,12 +28,12 @@ public class ServiceAdminControllerTests {
 
     private WebTestClient client;
 
-    private ApiClient apiClient;
+    private TestApiClient testApiClient;
 
     @Before
     public void setUp() {
         client = WebTestClient.bindToApplicationContext(context).build();
-        apiClient = new ApiClient(client);
+        testApiClient = new TestApiClient(client);
     }
 
     @Test
@@ -48,9 +48,9 @@ public class ServiceAdminControllerTests {
     @Test
     public void testGetAllServices() {
         //given
-        apiClient.createService("jsonplaceholder", "https://jsonplaceholder.typicode.com");
-        apiClient.createService("google", "https://google.com");
-        apiClient.createService("something-else", "https://something-else.com");
+        testApiClient.createService("jsonplaceholder", "https://jsonplaceholder.typicode.com");
+        testApiClient.createService("google", "https://google.com");
+        testApiClient.createService("something-else", "https://something-else.com");
 
         //when
         client.get().uri("admin/service").exchange()
@@ -86,7 +86,7 @@ public class ServiceAdminControllerTests {
     @Test
     public void testGetServiceById() {
         //given
-        apiClient.createService("jsonplaceholder", "https://jsonplaceholder.typicode.com");
+        testApiClient.createService("jsonplaceholder", "https://jsonplaceholder.typicode.com");
 
         //when
         client.get().uri("admin/service/jsonplaceholder").exchange()
