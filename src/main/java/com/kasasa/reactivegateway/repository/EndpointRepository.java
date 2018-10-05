@@ -79,7 +79,7 @@ public class EndpointRepository {
 
     private Map<String, Endpoint> getEndpointsForServiceOrFail(String serviceId) throws NotFoundException {
         Map<String, Endpoint> endpoints = serviceEndpoints.get(serviceId);
-        if (Objects.isNull(endpoints)) throw new NotFoundException();
+        if (Objects.isNull(endpoints)) throw new NotFoundException(String.format("Service not found for '%s'.", serviceId));
 
         return endpoints;
     }

@@ -58,7 +58,11 @@ public class RouteAdminControllerTests {
         testApiClient.createRoute(gatewayPath, endpoints)
 
                 // then
-                .expectStatus().isBadRequest();
+                .expectStatus().isBadRequest()
+                .expectBody(Exception.class)
+                .consumeWith(result -> {
+                    Assert.assertEquals("Service not found for 'non-existent'.", result.getResponseBody().getMessage());
+                });
     }
 
     @Test

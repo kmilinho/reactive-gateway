@@ -5,7 +5,6 @@ import com.kasasa.reactivegateway.dto.route.Route;
 import com.kasasa.reactivegateway.exceptions.BadRequestException;
 import com.kasasa.reactivegateway.exceptions.NotFoundException;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -47,19 +46,19 @@ public class RouteRepository {
      * @return
      */
     public Route addRoute(Route route){
-        if (!validateNewRoute(route)) {
-            throw new BadRequestException();
-        }
+        validateNewRoute(route);
 
         routes.put(route.getGatewayPath(), route);
 
         return route;
     }
 
-    private boolean validateNewRoute(Route route) {
-        if (routes.containsKey(route.getGatewayPath())) return false;
+    private void validateNewRoute(Route route) {
+        if (routes.containsKey(route.getGatewayPath()))
+            throw new BadRequestException("Gateway path needs to be unique.");
 
-        if (route.getServiceEndpoints().isEmpty()) return false;
+        if (route.getServiceEndpoints().isEmpty())
+            throw new BadRequestException("An endpoint needs to specify service endpoints to be called.");
 
         try {
             route.getServiceEndpoints().iterator()
@@ -67,13 +66,15 @@ public class RouteRepository {
                         Endpoint endpoint = endpointRepository
                                 .getServiceEndpoint(serviceEndpoint.getServiceId(), serviceEndpoint.getEndpointPath());
                         if (Objects.isNull(endpoint)) {
-                            throw new NotFoundException();
+                            throw new NotFoundException(String.format(
+                                    "Service '%s' and/or endpoint '%s' were not found.",
+                                    serviceEndpoint.getServiceId(),
+                                    serviceEndpoint.getEndpointPath()
+                            ));
                         }
                     });
         } catch (NotFoundException e) {
-            return false;
+            throw new BadRequestException(e.getReason());
         }
-
-        return true;
     }
 }
