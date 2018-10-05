@@ -28,29 +28,42 @@ public class ServiceEndpointAdminControllerTest {
     }
 
     @Test
-    public void testFailsWhenGivenInvalidServiceId() {
+    public void testFailsWhenServiceIdNotFound() {
         client.get().uri("/admin/service/123/endpoint")
                 .exchange()
                 .expectStatus().is4xxClientError();
     }
 
     @Test
-    public void testGetsEndpointForValidServiceId() {
-        // given
-        createEndpoint("some-id-1");
-
+    public void testFailsWhenEndpointIdNotFound() {
         // when
-        client.get().uri("/admin/service/abc/endpoint").exchange()
+        createEndpoint("s2", "some-id-1");
+
+        // then
+        client.get().uri("/admin/service/s2/endpoint/some-other-id")
+                .exchange()
+                .expectStatus().is4xxClientError();
+    }
+
+    @Test
+    public void testCreateEndpoint() {
+        // when
+        createEndpoint("s1", "some-id-1")
 
                 // then
                 .expectStatus().isOk()
-                .expectBodyList(Endpoint.class)
-                .hasSize(1)
+                .expectBody(Endpoint.class)
                 .consumeWith((result) -> {
-                    List<Endpoint> endpointList = result.getResponseBody();
-                    Assert.assertEquals("some-id-1", endpointList.get(0).getId());
-                    Assert.assertEquals("abc", endpointList.get(0).getServiceId());
+                    Endpoint ep = result.getResponseBody();
+                    Assert.assertEquals("some-id-1", ep.getId());
+                    Assert.assertEquals("s1", ep.getServiceId());
                 });
+    }
+
+    @Test
+    public void testGetsEndpoint() {
+        // given
+        createEndpoint("abc", "some-id-1");
 
         // when
         client.get().uri("/admin/service/abc/endpoint/some-id-1").exchange()
@@ -66,28 +79,51 @@ public class ServiceEndpointAdminControllerTest {
     }
 
     @Test
-    public void testDeletesEndpoint() {
+    public void testGetsEndpoints() {
         // given
-        createEndpoint("some-id-1");
+        createEndpoint("abc", "some-id-1");
+        createEndpoint("abc", "some-id-2");
 
         // when
-        client.delete().uri("/admin/service/abc/endpoint/some-id-1").exchange()
+        client.get().uri("/admin/service/abc/endpoint").exchange()
+
+                // then
+                .expectStatus().isOk()
+                .expectBodyList(Endpoint.class)
+                .hasSize(2)
+                .consumeWith((result) -> {
+                    List<Endpoint> endpointList = result.getResponseBody();
+                    Assert.assertEquals("some-id-1", endpointList.get(0).getId());
+                    Assert.assertEquals("abc", endpointList.get(0).getServiceId());
+                    Assert.assertEquals("some-id-2", endpointList.get(1).getId());
+                    Assert.assertEquals("abc", endpointList.get(1).getServiceId());
+                });
+    }
+
+    @Test
+    public void testDeletesEndpoint() {
+        // given
+        createEndpoint("for-delete", "deleted-id-1");
+        client.get().uri("/admin/service/for-delete/endpoint/deleted-id-1").exchange().expectStatus().isOk();
+
+        // when
+        client.delete().uri("/admin/service/for-delete/endpoint/deleted-id-1").exchange()
 
                 // then
                 .expectStatus().isOk();
 
         // when
-        client.get().uri("/admin/service/123/endpoint/some-id-1").exchange()
+        client.get().uri("/admin/service/for-delete/endpoint/deleted-id-1").exchange()
 
                 // then
                 .expectStatus().is4xxClientError();
     }
 
-    private void createEndpoint(String id) {
+    private WebTestClient.ResponseSpec createEndpoint(String serviceId, String endpointId) {
         Endpoint endpoint = Endpoint.builder()
-                .id(id)
+                .id(endpointId)
                 .build();
-        client.post().uri("/admin/service/abc/endpoint").syncBody(endpoint).exchange();
+        return client.post().uri(String.format("/admin/service/%s/endpoint", serviceId)).syncBody(endpoint).exchange();
     }
 
 }

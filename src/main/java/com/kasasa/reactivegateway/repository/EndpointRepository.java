@@ -28,6 +28,7 @@ public class EndpointRepository {
     public Mono<Endpoint> getServiceEndpoint(String serviceId, String endpointId) throws NotFoundException {
         return getServiceEndpoints(serviceId)
                 .filter((endpoint) -> endpoint.getId().equals(endpointId))
+                .switchIfEmpty(Mono.error(new NotFoundException()))
                 .next();
     }
 
@@ -38,15 +39,7 @@ public class EndpointRepository {
      * @throws NotFoundException
      */
     public Flux<Endpoint> getServiceEndpoints(String serviceId) throws NotFoundException {
-        return Flux.fromStream(() -> {
-            Map<String, Endpoint> endpoints = serviceEndpoints.get(serviceId);
-
-            if (Objects.isNull(endpoints) || endpoints.isEmpty()) {
-                throw new NotFoundException();
-            }
-
-            return endpoints.values().stream();
-        });
+        return Flux.fromStream(() -> getEndpointsForServiceOrFail(serviceId).values().stream());
     }
 
     /**
@@ -66,17 +59,15 @@ public class EndpointRepository {
      * @return
      */
     public Mono<Void> delete(String serviceId, String endpointId) {
-        serviceEndpoints.get(serviceId).remove(endpointId);
+        getEndpointsForServiceOrFail(serviceId).remove(endpointId);
+
         return Mono.empty();
     }
 
     private Function<Endpoint, Endpoint> saveEndpoint(String serviceId) {
         return endpoint -> {
-
             endpoint.setServiceId(serviceId);
-
-            getEndpointsForService(serviceId)
-                    .put(endpoint.getId(), endpoint);
+            getEndpointsForService(serviceId).put(endpoint.getId(), endpoint);
 
             return endpoint;
         };
@@ -90,6 +81,17 @@ public class EndpointRepository {
         } else {
             endpoints = serviceEndpoints.get(serviceId);
         }
+
+        return endpoints;
+    }
+
+    private Map<String, Endpoint> getEndpointsForServiceOrFail(String serviceId) throws NotFoundException {
+        Map<String, Endpoint> endpoints = serviceEndpoints.get(serviceId);
+
+        if (Objects.isNull(endpoints) || endpoints.isEmpty()) {
+            throw new NotFoundException();
+        }
+
         return endpoints;
     }
 }
