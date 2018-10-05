@@ -118,7 +118,7 @@ public class ReactiveGatewayApplicationTests {
                     Service serviceBody = result.getResponseBody();
                     Assert.assertEquals("jsonplaceholder", serviceBody.getId());
                     Assert.assertEquals(receivedService.getInputMiddleware(), serviceBody.getInputMiddleware());
-                    Assert.assertNull(receivedService.getOutputMiddleware());
+//                    Assert.assertNull(receivedService.getOutputMiddleware());
                     Assert.assertEquals(receivedService.getResolveInfo(), serviceBody.getResolveInfo());
                 }
         );

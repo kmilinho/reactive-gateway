@@ -1,6 +1,6 @@
 package com.kasasa.reactivegateway.controller;
 
-import com.kasasa.reactivegateway.dto.endpoint.Endpoint;
+import com.kasasa.reactivegateway.dto.Endpoint;
 import com.kasasa.reactivegateway.dto.service.Service;
 import com.kasasa.reactivegateway.exceptions.NotFoundException;
 import com.kasasa.reactivegateway.repository.EndpointRepository;

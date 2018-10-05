@@ -14,6 +14,6 @@ public class Service {
     private String id;
     private ResolveMethod resolveMethod;
     private ResolveInfo resolveInfo;
+
     private List<MiddlewareType> inputMiddleware;
-    private List<MiddlewareType> outputMiddleware;
 }

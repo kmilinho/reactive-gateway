@@ -1,6 +1,6 @@
 package com.kasasa.reactivegateway.repository;
 
-import com.kasasa.reactivegateway.dto.endpoint.Endpoint;
+import com.kasasa.reactivegateway.dto.Endpoint;
 import com.kasasa.reactivegateway.exceptions.NotFoundException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

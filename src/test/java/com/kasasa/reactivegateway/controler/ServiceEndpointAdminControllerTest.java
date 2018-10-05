@@ -1,10 +1,7 @@
 package com.kasasa.reactivegateway.controler;
 
-import com.kasasa.reactivegateway.dto.endpoint.Endpoint;
-import com.kasasa.reactivegateway.dto.service.ResolveInfo;
-import com.kasasa.reactivegateway.dto.service.ResolveMethod;
+import com.kasasa.reactivegateway.dto.Endpoint;
 import com.kasasa.reactivegateway.dto.service.Service;
-import com.kasasa.reactivegateway.middleware.MiddlewareType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +12,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
