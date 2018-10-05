@@ -16,19 +16,33 @@ public class ServiceRepository {
         services = new ConcurrentHashMap<>();
     }
 
+    /**
+     *
+     * @param monoService
+     * @return
+     */
     public Mono<Service> addService(Mono<Service> monoService) {
-        return monoService.flatMap(service -> Mono.fromSupplier(() -> {
+        return monoService.map(service -> {
             services.put(service.getId(), service);
             return service;
-        }));
+        });
     }
 
+    /**
+     *
+     * @return
+     */
     public Flux<Service> getAllServices() {
         return Flux.fromStream(
                 services.values().stream()
         );
     }
 
+    /**
+     *
+     * @param serviceId
+     * @return
+     */
     public Mono<Service> getById(String serviceId) {
         return Mono.fromSupplier(
                 () -> services.get(serviceId)
