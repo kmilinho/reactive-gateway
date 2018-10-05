@@ -1,6 +1,10 @@
 package com.kasasa.reactivegateway.controler;
 
 import com.kasasa.reactivegateway.dto.endpoint.Endpoint;
+import com.kasasa.reactivegateway.dto.service.ResolveInfo;
+import com.kasasa.reactivegateway.dto.service.ResolveMethod;
+import com.kasasa.reactivegateway.dto.service.Service;
+import com.kasasa.reactivegateway.middleware.MiddlewareType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,6 +15,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
@@ -43,6 +48,19 @@ public class ServiceEndpointAdminControllerTest {
         client.get().uri("/admin/service/s2/endpoint/some-other-id")
                 .exchange()
                 .expectStatus().is4xxClientError();
+    }
+
+    @Test
+    public void testReturnsEmptyWhenServiceFoundButHasNoEndpoints() {
+        // given
+        Service service = Service.builder().id("some-service-id").build();
+        client.post().uri("/admin/service").syncBody(service).exchange();
+
+        // when
+        client.get().uri("/admin/service/some-service-id/endpoint").exchange()
+
+                // then
+                .expectStatus().isOk();
     }
 
     @Test

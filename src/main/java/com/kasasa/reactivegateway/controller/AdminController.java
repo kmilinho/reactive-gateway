@@ -33,12 +33,17 @@ public class AdminController {
 
     @GetMapping("/service/{id}")
     Mono<Service> getServiceById(@PathVariable("id") String serviceId) {
-        return serviceRepository.getById(serviceId);
+        return serviceRepository.getById(serviceId)
+                .switchIfEmpty(Mono.error(new NotFoundException()));
     }
 
     @PostMapping("/service")
-    Mono<Service> createService(@RequestBody Mono<Service> service) {
-        return serviceRepository.addService(service);
+    Mono<Service> createService(@RequestBody Mono<Service> inputService) {
+        return serviceRepository.addService(inputService).map(
+                (service) -> {
+                    endpointRepository.getCreateEndpointsForService(service.getId());
+                    return service;
+                });
     }
 
     @GetMapping("/service/{id}/endpoint")
@@ -48,7 +53,8 @@ public class AdminController {
 
     @GetMapping("/service/{serviceId}/endpoint/{endpointId}")
     Mono<Endpoint> showServiceEndpoint(@PathVariable("serviceId") String serviceId, @PathVariable("endpointId") String endpointId) {
-        return endpointRepository.getServiceEndpoint(serviceId, endpointId);
+        return endpointRepository.getServiceEndpoint(serviceId, endpointId)
+                .switchIfEmpty(Mono.error(new NotFoundException()));
     }
 
     @PostMapping("/service/{id}/endpoint")

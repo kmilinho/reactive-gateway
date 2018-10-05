@@ -32,6 +32,14 @@ public class ReactiveGatewayApplicationTests {
         client = WebTestClient.bindToApplicationContext(context).build();
     }
 
+    @Test
+    public void testGetAllServicesReturnsOkWithNoServices() {
+        //when
+        client.get().uri("admin/service").exchange()
+
+                //then
+                .expectStatus().isOk();
+    }
 
     @Test
     public void testGetAllServices() {
@@ -58,6 +66,15 @@ public class ReactiveGatewayApplicationTests {
                             .forEach(s -> Assert.assertEquals("https://something-else.com", s.getResolveInfo().getUrl()));
                 }
         );
+    }
+
+    @Test
+    public void testGetServiceByIdFailsForUnknownService() {
+        //when
+        client.get().uri("admin/service/unknownservice").exchange()
+
+                //then
+                .expectStatus().is4xxClientError();
     }
 
     @Test

@@ -26,8 +26,7 @@ public class EndpointRepository {
      * @throws NotFoundException
      */
     public Mono<Endpoint> getServiceEndpoint(String serviceId, String endpointId) throws NotFoundException {
-        return Mono.justOrEmpty(getEndpointsForServiceOrFail(serviceId).get(endpointId))
-                .switchIfEmpty(Mono.error(new NotFoundException()));
+        return Mono.justOrEmpty(getEndpointsForServiceOrFail(serviceId).get(endpointId));
     }
 
     /**
@@ -62,16 +61,12 @@ public class EndpointRepository {
         return Mono.empty();
     }
 
-    private Function<Endpoint, Endpoint> saveEndpoint(String serviceId) {
-        return endpoint -> {
-            endpoint.setServiceId(serviceId);
-            getEndpointsForService(serviceId).put(endpoint.getPath(), endpoint);
-
-            return endpoint;
-        };
-    }
-
-    private Map<String, Endpoint> getEndpointsForService(String serviceId) {
+    /**
+     *
+     * @param serviceId
+     * @return
+     */
+    public Map<String, Endpoint> getCreateEndpointsForService(String serviceId) {
         Map<String, Endpoint> endpoints;
         if (!serviceEndpoints.containsKey(serviceId)) {
             endpoints = new ConcurrentHashMap<>();
@@ -83,12 +78,18 @@ public class EndpointRepository {
         return endpoints;
     }
 
+    private Function<Endpoint, Endpoint> saveEndpoint(String serviceId) {
+        return endpoint -> {
+            endpoint.setServiceId(serviceId);
+            getCreateEndpointsForService(serviceId).put(endpoint.getPath(), endpoint);
+
+            return endpoint;
+        };
+    }
+
     private Map<String, Endpoint> getEndpointsForServiceOrFail(String serviceId) throws NotFoundException {
         Map<String, Endpoint> endpoints = serviceEndpoints.get(serviceId);
-
-        if (Objects.isNull(endpoints) || endpoints.isEmpty()) {
-            throw new NotFoundException();
-        }
+        if (Objects.isNull(endpoints)) throw new NotFoundException();
 
         return endpoints;
     }

@@ -33,9 +33,7 @@ public class ServiceRepository {
      * @return
      */
     public Flux<Service> getAllServices() {
-        return Flux.fromStream(
-                services.values().stream()
-        );
+        return Flux.fromIterable(services.values());
     }
 
     /**
@@ -44,8 +42,6 @@ public class ServiceRepository {
      * @return
      */
     public Mono<Service> getById(String serviceId) {
-        return Mono.fromSupplier(
-                () -> services.get(serviceId)
-        );
+        return Mono.justOrEmpty(services.get(serviceId));
     }
 }
