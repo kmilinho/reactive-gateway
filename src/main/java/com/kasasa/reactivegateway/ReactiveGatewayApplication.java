@@ -1,5 +1,6 @@
 package com.kasasa.reactivegateway;
 
+import com.google.gson.JsonParser;
 import com.kasasa.reactivegateway.repository.EndpointRepository;
 import com.kasasa.reactivegateway.repository.ServiceRepository;
 import org.springframework.boot.SpringApplication;
@@ -28,5 +29,10 @@ public class ReactiveGatewayApplication {
     @Bean()
     public WebClient getWebClient(){
       return WebClient.create();
+    }
+
+    @Bean
+    public JsonParser getJsonParser() {
+        return new JsonParser();
     }
 }

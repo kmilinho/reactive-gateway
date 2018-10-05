@@ -19,10 +19,18 @@ public class RouteRepository {
         routes.put("/test/something",
                 Route.builder()
                         .gatewayPath("/test/something")
-                        .endpoints(List.of(Endpoint.builder()
-                                .serviceId("SAMPLE")
-                                .path("/todos/1")
-                                .build()))
+                        .endpoints(
+                                List.of(
+                                        Endpoint.builder()
+                                            .serviceId("SAMPLE")
+                                            .path("/users/1")
+                                            .build(),
+                                        Endpoint.builder()
+                                                .serviceId("SAMPLE")
+                                                .path("/todos/1")
+                                                .build()
+                                        )
+                        )
                         .build()
         );
     }
