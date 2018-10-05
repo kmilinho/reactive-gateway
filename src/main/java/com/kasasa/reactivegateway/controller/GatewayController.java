@@ -7,6 +7,7 @@ import com.kasasa.reactivegateway.EndpointCaller;
 import com.kasasa.reactivegateway.RouteResolver;
 import com.kasasa.reactivegateway.dto.Route;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,7 +36,7 @@ public class GatewayController {
         this.jsonParser = jsonParser;
     }
 
-    @RequestMapping()
+    @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<String> handle(ServerHttpRequest request) {
 
         log.info("request received: " + request.getMethod() + " " + request.getURI());
