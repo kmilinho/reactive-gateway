@@ -6,6 +6,7 @@ import com.google.gson.JsonParser;
 import com.kasasa.reactivegateway.EndpointCaller;
 import com.kasasa.reactivegateway.RouteResolver;
 import com.kasasa.reactivegateway.dto.route.Route;
+import com.kasasa.reactivegateway.middleware.MiddlewareEngine;
 import com.kasasa.reactivegateway.repository.EndpointRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -28,24 +29,27 @@ public class GatewayController {
     private final EndpointCaller endpointCaller;
     private final EndpointRepository endpointRepository;
     private final JsonParser jsonParser;
+    private final MiddlewareEngine middlewareEngine;
 
     public GatewayController(RouteResolver routeResolver,
                              EndpointCaller endpointCaller,
                              JsonParser jsonParser,
-                             EndpointRepository endpointRepository
+                             EndpointRepository endpointRepository,
+                             MiddlewareEngine middlewareEngine
     ) {
         this.routeResolver = routeResolver;
         this.endpointCaller = endpointCaller;
         this.jsonParser = jsonParser;
         this.endpointRepository = endpointRepository;
+        this.middlewareEngine = middlewareEngine;
     }
 
     @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<String> handle(ServerHttpRequest request) {
 
-        log.info("request received: " + request.getMethod() + " " + request.getURI());
-
         Route route = routeResolver.resolve(request);
+
+        request = middlewareEngine.applyMiddleware(route.getInputMiddleware(), request);
 
         List<Mono<String>> endpointMonoResponses = route.getServiceEndpoints().parallelStream()
                 .map(serviceEndpoint -> endpointRepository.getServiceEndpoint(serviceEndpoint.getServiceId(), serviceEndpoint.getEndpointPath()))

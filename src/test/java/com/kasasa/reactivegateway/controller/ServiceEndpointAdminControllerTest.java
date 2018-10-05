@@ -36,7 +36,7 @@ public class ServiceEndpointAdminControllerTest {
     public void testFailsWhenServiceIdNotFound() {
         client.get().uri("/admin/service/123/endpoint")
                 .exchange()
-                .expectStatus().is4xxClientError();
+                .expectStatus().isNotFound();
     }
 
     @Test
@@ -47,7 +47,7 @@ public class ServiceEndpointAdminControllerTest {
         // then
         client.get().uri("/admin/service/s2/endpoint/some-other-id")
                 .exchange()
-                .expectStatus().is4xxClientError();
+                .expectStatus().isNotFound();
     }
 
     @Test
@@ -134,6 +134,6 @@ public class ServiceEndpointAdminControllerTest {
         client.get().uri("/admin/service/for-delete/endpoint/deleted-id-1").exchange()
 
                 // then
-                .expectStatus().is4xxClientError();
+                .expectStatus().isNotFound();
     }
 }

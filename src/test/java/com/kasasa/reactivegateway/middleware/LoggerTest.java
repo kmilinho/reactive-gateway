@@ -1,4 +1,4 @@
-package com.kasasa.reactivegateway;
+package com.kasasa.reactivegateway.middleware;
 
 import com.kasasa.reactivegateway.dto.route.ServiceEndpoint;
 import com.kasasa.reactivegateway.helpers.ApiClient;
@@ -15,7 +15,7 @@ import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class ReactiveGatewayApplicationTests {
+public class LoggerTest {
 
     @Autowired
     private ApplicationContext context;
@@ -31,37 +31,22 @@ public class ReactiveGatewayApplicationTests {
     }
 
     @Test
-    public void testReturnsNotFoundForNonExistentRoutes() {
-        //when
-        client.get().uri("does-not-exist").exchange()
-
-                //then
-                .expectStatus().isNotFound();
-    }
-
-    @Test
-    public void testResolvesRoute() {
+    public void testLoggerMiddlewareWorks() {
         //given
-        String gatewayPath = "/testResolvesRoute/path";
+        String gatewayPath = "/testLoggerMiddlewareWorks/path";
         String serviceId = "testResolvesRoute-service";
         String endpointPath1 = "/users/1";
-        String endpointPath2 = "/todos/1";
         apiClient.createService(serviceId, "https://jsonplaceholder.typicode.com");
         apiClient.createEndpoint(serviceId, endpointPath1);
-        apiClient.createEndpoint(serviceId, endpointPath2);
         List<ServiceEndpoint> endpoints = List.of(
-            ServiceEndpoint.builder()
-                .serviceId(serviceId)
-                .endpointPath(endpointPath1)
-                .build(),
-            ServiceEndpoint.builder()
-                .serviceId(serviceId)
-                .endpointPath(endpointPath2)
-                .build()
+                ServiceEndpoint.builder()
+                        .serviceId(serviceId)
+                        .endpointPath(endpointPath1)
+                        .build()
         );
 
         //when
-        apiClient.createRoute(gatewayPath, endpoints)
+        apiClient.createRoute(gatewayPath, endpoints, List.of(MiddlewareType.LOGGER))
 
                 //then
                 .expectStatus().isOk();
@@ -71,7 +56,5 @@ public class ReactiveGatewayApplicationTests {
 
                 //then
                 .expectStatus().isOk();
-
-        // TODO Verify merged responses
     }
 }

@@ -80,7 +80,7 @@ public class ServiceAdminControllerTests {
         client.get().uri("admin/service/unknownservice").exchange()
 
                 //then
-                .expectStatus().is4xxClientError();
+                .expectStatus().isNotFound();
     }
 
     @Test

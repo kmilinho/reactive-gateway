@@ -5,6 +5,7 @@ import com.kasasa.reactivegateway.dto.route.Route;
 import com.kasasa.reactivegateway.dto.route.ServiceEndpoint;
 import com.kasasa.reactivegateway.dto.service.ResolveInfo;
 import com.kasasa.reactivegateway.dto.service.Service;
+import com.kasasa.reactivegateway.middleware.MiddlewareType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.util.List;
@@ -20,6 +21,15 @@ public class ApiClient {
         Route route = Route.builder()
                 .gatewayPath(gatewayPath)
                 .serviceEndpoints(serviceEndpoints)
+                .build();
+        return client.post().uri("/admin/route").syncBody(route).exchange();
+    }
+
+    public WebTestClient.ResponseSpec createRoute(String gatewayPath, List<ServiceEndpoint> serviceEndpoints, List<MiddlewareType> middlewareList) {
+        Route route = Route.builder()
+                .gatewayPath(gatewayPath)
+                .serviceEndpoints(serviceEndpoints)
+                .inputMiddleware(middlewareList)
                 .build();
         return client.post().uri("/admin/route").syncBody(route).exchange();
     }
