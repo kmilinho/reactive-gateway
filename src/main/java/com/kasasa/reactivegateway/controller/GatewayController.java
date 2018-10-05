@@ -48,7 +48,7 @@ public class GatewayController {
         Route route = routeResolver.resolve(request);
 
         List<Mono<String>> endpointMonoResponses = route.getServiceEndpoints().parallelStream()
-                .map(serviceEndpoint -> Mono.justOrEmpty(endpointRepository.getServiceEndpoint(serviceEndpoint.getServiceId(), serviceEndpoint.getEndpointPath())))
+                .map(serviceEndpoint -> endpointRepository.getServiceEndpoint(serviceEndpoint.getServiceId(), serviceEndpoint.getEndpointPath()))
                 .map(endpointCaller::call)
                 .collect(Collectors.toList());
 
@@ -57,6 +57,7 @@ public class GatewayController {
                     var newResponse = jsonParser.parse(stringEndpointResponse).getAsJsonObject();
 
                     newResponse.entrySet().forEach(entry ->
+                            //if key is in my output for that endpoint then add the mappedToKey
                             jsonGatewayResponse.add(entry.getKey(), entry.getValue())
                     );
                 })

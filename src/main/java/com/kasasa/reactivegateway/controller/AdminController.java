@@ -81,7 +81,7 @@ public class AdminController {
     }
 
     @RequestMapping("**")
-    Mono<Void> defaultRoute(){
+    Mono<Void> defaultRoute() {
         throw new NotFoundException();
     }
 }

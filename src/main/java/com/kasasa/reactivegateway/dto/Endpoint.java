@@ -22,6 +22,7 @@ public class Endpoint {
     private String path;
     private String serviceId;
     private HttpMethod method;
-    private List<String> inputParameters;
-    private List<String> outputParameters;
+
+    private List<Parameter> inputParameters;
+    private List<Parameter> outputParameters;
 }

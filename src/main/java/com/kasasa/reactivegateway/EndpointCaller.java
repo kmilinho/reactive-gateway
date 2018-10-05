@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.util.function.Function;
+import java.util.Objects;
 
 @Component
 public class EndpointCaller {
@@ -22,20 +22,19 @@ public class EndpointCaller {
         this.serviceRepository = serviceRepository;
     }
 
-    public Mono<String> call(Mono<Endpoint> endpointMono) {
-        return endpointMono.flatMap(endpoint -> Mono.just(serviceRepository.getById(endpoint.getServiceId()))
-                .switchIfEmpty(Mono.error(new NotFoundException()))
-                .flatMap(callGetEndpoint(endpoint)));
-    }
+    public Mono<String> call(Endpoint endpoint) {
 
-    private Function<Service, Mono<? extends String>> callGetEndpoint(Endpoint endpoint) {
-        return service -> serviceClient.mutate()
-        .baseUrl(service.getResolveInfo().getUrl())
-        .build()
-        .get()
-        .uri(endpoint.getPath())
-        .exchange()
-        .flatMap(clientResponse -> clientResponse.bodyToMono(String.class));
-    }
+        Service service = serviceRepository.getById(endpoint.getServiceId());
 
+        if (Objects.isNull(service)) {
+            throw new NotFoundException();
+        }
+        return serviceClient.mutate()
+                .baseUrl(service.getResolveInfo().getUrl())
+                .build()
+                .get()
+                .uri(endpoint.getPath())
+                .exchange()
+                .flatMap(clientResponse -> clientResponse.bodyToMono(String.class));
+    }
 }
