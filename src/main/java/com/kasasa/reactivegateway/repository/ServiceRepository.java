@@ -1,6 +1,5 @@
 package com.kasasa.reactivegateway.repository;
 
-import com.kasasa.reactivegateway.dto.service.ResolveInfo;
 import com.kasasa.reactivegateway.dto.service.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -15,12 +14,6 @@ public class ServiceRepository {
 
     public ServiceRepository() {
         services = new ConcurrentHashMap<>();
-
-        services.put("SAMPLE", Service.builder()
-                .id("SAMPLE")
-                .resolveInfo(ResolveInfo.builder().url("https://jsonplaceholder.typicode.com").build())
-                .build()
-        );
     }
 
     /**

@@ -1,6 +1,6 @@
 package com.kasasa.reactivegateway;
 
-import com.kasasa.reactivegateway.dto.Route;
+import com.kasasa.reactivegateway.dto.route.Route;
 import com.kasasa.reactivegateway.exceptions.NotFoundException;
 import com.kasasa.reactivegateway.repository.RouteRepository;
 import lombok.extern.slf4j.Slf4j;

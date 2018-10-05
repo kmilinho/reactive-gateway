@@ -5,7 +5,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.kasasa.reactivegateway.EndpointCaller;
 import com.kasasa.reactivegateway.RouteResolver;
-import com.kasasa.reactivegateway.dto.Route;
+import com.kasasa.reactivegateway.dto.route.Route;
+import com.kasasa.reactivegateway.repository.EndpointRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -25,15 +26,18 @@ public class GatewayController {
 
     private final RouteResolver routeResolver;
     private final EndpointCaller endpointCaller;
+    private final EndpointRepository endpointRepository;
     private final JsonParser jsonParser;
 
     public GatewayController(RouteResolver routeResolver,
                              EndpointCaller endpointCaller,
-                             JsonParser jsonParser
+                             JsonParser jsonParser,
+                             EndpointRepository endpointRepository
     ) {
         this.routeResolver = routeResolver;
         this.endpointCaller = endpointCaller;
         this.jsonParser = jsonParser;
+        this.endpointRepository = endpointRepository;
     }
 
     @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -43,7 +47,8 @@ public class GatewayController {
 
         Route route = routeResolver.resolve(request);
 
-        List<Mono<String>> endpointMonoResponses = route.getEndpoints().stream()
+        List<Mono<String>> endpointMonoResponses = route.getServiceEndpoints().parallelStream()
+                .map(serviceEndpoint -> endpointRepository.getServiceEndpoint(serviceEndpoint.getServiceId(), serviceEndpoint.getEndpointPath()))
                 .map(endpointCaller::call)
                 .collect(Collectors.toList());
 

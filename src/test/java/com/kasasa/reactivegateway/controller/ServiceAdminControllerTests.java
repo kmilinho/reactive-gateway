@@ -3,6 +3,7 @@ package com.kasasa.reactivegateway.controller;
 import com.kasasa.reactivegateway.dto.service.ResolveInfo;
 import com.kasasa.reactivegateway.dto.service.ResolveMethod;
 import com.kasasa.reactivegateway.dto.service.Service;
+import com.kasasa.reactivegateway.helpers.ApiClient;
 import com.kasasa.reactivegateway.middleware.MiddlewareType;
 import org.junit.Assert;
 import org.junit.Before;
@@ -27,9 +28,12 @@ public class ServiceAdminControllerTests {
 
     private WebTestClient client;
 
+    private ApiClient apiClient;
+
     @Before
     public void setUp() {
         client = WebTestClient.bindToApplicationContext(context).build();
+        apiClient = new ApiClient(client);
     }
 
     @Test
@@ -44,7 +48,9 @@ public class ServiceAdminControllerTests {
     @Test
     public void testGetAllServices() {
         //given
-        createServices();
+        apiClient.createService("jsonplaceholder", "https://jsonplaceholder.typicode.com");
+        apiClient.createService("google", "https://google.com");
+        apiClient.createService("something-else", "https://something-else.com");
 
         //when
         client.get().uri("admin/service").exchange()
@@ -80,7 +86,7 @@ public class ServiceAdminControllerTests {
     @Test
     public void testGetServiceById() {
         //given
-        createServices();
+        apiClient.createService("jsonplaceholder", "https://jsonplaceholder.typicode.com");
 
         //when
         client.get().uri("admin/service/jsonplaceholder").exchange()
@@ -121,42 +127,5 @@ public class ServiceAdminControllerTests {
                     Assert.assertEquals(receivedService.getResolveInfo(), serviceBody.getResolveInfo());
                 }
         );
-    }
-
-    private void createServices() {
-        Service s1 = Service.builder()
-                .id("jsonplaceholder")
-                .inputMiddleware(Arrays.asList(MiddlewareType.AUTH_HEADER))
-                .resolveMethod(ResolveMethod.URL)
-                .resolveInfo(
-                        ResolveInfo.builder()
-                                .url("https://jsonplaceholder.typicode.com")
-                                .build()
-                )
-                .build();
-        Service s2 = Service.builder()
-                .id("google")
-                .inputMiddleware(Arrays.asList(MiddlewareType.AUTH_HEADER))
-                .resolveMethod(ResolveMethod.URL)
-                .resolveInfo(
-                        ResolveInfo.builder()
-                                .url("https://google.com")
-                                .build()
-                )
-                .build();
-        Service s3 = Service.builder()
-                .id("something-else")
-                .inputMiddleware(Arrays.asList(MiddlewareType.AUTH_HEADER))
-                .resolveMethod(ResolveMethod.URL)
-                .resolveInfo(
-                        ResolveInfo.builder()
-                                .url("https://something-else.com")
-                                .build()
-                )
-                .build();
-        client.post().uri("/admin/service").syncBody(s1).exchange();
-        client.post().uri("/admin/service").syncBody(s2).exchange();
-        client.post().uri("/admin/service").syncBody(s3).exchange();
-
     }
 }

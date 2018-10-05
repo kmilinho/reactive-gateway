@@ -1,11 +1,13 @@
 package com.kasasa.reactivegateway.repository;
 
-import com.kasasa.reactivegateway.dto.Endpoint;
-import com.kasasa.reactivegateway.dto.Route;
+import com.kasasa.reactivegateway.dto.route.Route;
+import com.kasasa.reactivegateway.exceptions.BadRequestException;
+import com.kasasa.reactivegateway.exceptions.NotFoundException;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Component
@@ -13,33 +15,59 @@ public class RouteRepository {
 
     private Map<String, Route> routes;
 
-    public RouteRepository() {
-        routes = new HashMap<>();
+    private EndpointRepository endpointRepository;
 
-        routes.put("/test/something",
-                Route.builder()
-                        .gatewayPath("/test/something")
-                        .endpoints(
-                                List.of(
-                                        Endpoint.builder()
-                                            .serviceId("SAMPLE")
-                                            .path("/users/1")
-                                            .build(),
-                                        Endpoint.builder()
-                                                .serviceId("SAMPLE")
-                                                .path("/todos/1")
-                                                .build()
-                                        )
-                        )
-                        .build()
-        );
+    public RouteRepository(EndpointRepository endpointRepository) {
+        routes = new HashMap<>();
+        this.endpointRepository = endpointRepository;
     }
 
+    /**
+     *
+     * @param path
+     * @return
+     */
     public Route getByPath(String path) {
         return routes.get(path);
     }
 
-    public void addRoute(Route route){
+    /**
+     *
+     * @return
+     */
+    public Collection<Route> getAll() {
+        return routes.values();
+    }
+
+    /**
+     *
+     * @param route
+     * @return
+     */
+    public Route addRoute(Route route){
+        if (!validateNewRoute(route)) {
+            throw new BadRequestException();
+        }
+
         routes.put(route.getGatewayPath(), route);
+
+        return route;
+    }
+
+    private boolean validateNewRoute(Route route) {
+        if (routes.containsKey(route.getGatewayPath())) return false;
+
+        if (route.getServiceEndpoints().isEmpty()) return false;
+
+        try {
+            route.getServiceEndpoints().iterator()
+                    .forEachRemaining(serviceEndpoint -> endpointRepository
+                            .getServiceEndpoint(serviceEndpoint.getServiceId(), serviceEndpoint.getEndpointPath())
+                            .switchIfEmpty(Mono.error(new NotFoundException())));
+        } catch (NotFoundException e) {
+            return false;
+        }
+
+        return true;
     }
 }

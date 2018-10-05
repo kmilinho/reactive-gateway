@@ -21,12 +21,12 @@ public class EndpointRepository {
     /**
      *
      * @param serviceId
-     * @param endpointId
+     * @param endpointPath
      * @return
      * @throws NotFoundException
      */
-    public Mono<Endpoint> getServiceEndpoint(String serviceId, String endpointId) throws NotFoundException {
-        return Mono.justOrEmpty(getEndpointsForServiceOrFail(serviceId).get(endpointId));
+    public Mono<Endpoint> getServiceEndpoint(String serviceId, String endpointPath) throws NotFoundException {
+        return Mono.justOrEmpty(getEndpointsForServiceOrFail(serviceId).get(endpointPath));
     }
 
     /**
@@ -52,11 +52,11 @@ public class EndpointRepository {
     /**
      *
      * @param serviceId
-     * @param endpointId
+     * @param endpointPath
      * @return
      */
-    public Mono<Void> delete(String serviceId, String endpointId) {
-        getEndpointsForServiceOrFail(serviceId).remove(endpointId);
+    public Mono<Void> delete(String serviceId, String endpointPath) {
+        getEndpointsForServiceOrFail(serviceId).remove(endpointPath);
 
         return Mono.empty();
     }

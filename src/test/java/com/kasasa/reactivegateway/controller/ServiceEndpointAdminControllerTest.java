@@ -2,6 +2,7 @@ package com.kasasa.reactivegateway.controller;
 
 import com.kasasa.reactivegateway.dto.Endpoint;
 import com.kasasa.reactivegateway.dto.service.Service;
+import com.kasasa.reactivegateway.helpers.ApiClient;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,9 +24,12 @@ public class ServiceEndpointAdminControllerTest {
 
     private WebTestClient client;
 
+    private ApiClient apiClient;
+
     @Before
     public void setUp() {
         client = WebTestClient.bindToApplicationContext(context).build();
+        apiClient = new ApiClient(client);
     }
 
     @Test
@@ -36,9 +40,9 @@ public class ServiceEndpointAdminControllerTest {
     }
 
     @Test
-    public void testFailsWhenEndpointIdNotFound() {
+    public void testFailsWhenEndpointPathNotFound() {
         // when
-        createEndpoint("s2", "some-id-1");
+        apiClient.createEndpoint("s2", "some-id-1");
 
         // then
         client.get().uri("/admin/service/s2/endpoint/some-other-id")
@@ -62,7 +66,7 @@ public class ServiceEndpointAdminControllerTest {
     @Test
     public void testCreateEndpoint() {
         // when
-        createEndpoint("s1", "some-id-1")
+        apiClient.createEndpoint("s1", "some-id-1")
 
                 // then
                 .expectStatus().isOk()
@@ -77,7 +81,7 @@ public class ServiceEndpointAdminControllerTest {
     @Test
     public void testGetsEndpoint() {
         // given
-        createEndpoint("abc", "some-id-1");
+        apiClient.createEndpoint("abc", "some-id-1");
 
         // when
         client.get().uri("/admin/service/abc/endpoint/some-id-1").exchange()
@@ -95,8 +99,8 @@ public class ServiceEndpointAdminControllerTest {
     @Test
     public void testGetsEndpoints() {
         // given
-        createEndpoint("abc", "some-id-1");
-        createEndpoint("abc", "some-id-2");
+        apiClient.createEndpoint("abc", "some-id-1");
+        apiClient.createEndpoint("abc", "some-id-2");
 
         // when
         client.get().uri("/admin/service/abc/endpoint").exchange()
@@ -117,7 +121,7 @@ public class ServiceEndpointAdminControllerTest {
     @Test
     public void testDeletesEndpoint() {
         // given
-        createEndpoint("for-delete", "deleted-id-1");
+        apiClient.createEndpoint("for-delete", "deleted-id-1");
         client.get().uri("/admin/service/for-delete/endpoint/deleted-id-1").exchange().expectStatus().isOk();
 
         // when
@@ -132,12 +136,4 @@ public class ServiceEndpointAdminControllerTest {
                 // then
                 .expectStatus().is4xxClientError();
     }
-
-    private WebTestClient.ResponseSpec createEndpoint(String serviceId, String endpointId) {
-        Endpoint endpoint = Endpoint.builder()
-                .path(endpointId)
-                .build();
-        return client.post().uri(String.format("/admin/service/%s/endpoint", serviceId)).syncBody(endpoint).exchange();
-    }
-
 }

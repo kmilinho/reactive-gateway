@@ -22,11 +22,10 @@ public class EndpointCaller {
         this.serviceRepository = serviceRepository;
     }
 
-    public Mono<String> call(Endpoint endpoint) {
-
-        return serviceRepository.getById(endpoint.getServiceId())
+    public Mono<String> call(Mono<Endpoint> endpointMono) {
+        return endpointMono.flatMap(endpoint -> serviceRepository.getById(endpoint.getServiceId())
                 .switchIfEmpty(Mono.error(new NotFoundException()))
-                .flatMap(callGetEndpoint(endpoint));
+                .flatMap(callGetEndpoint(endpoint)));
     }
 
     private Function<Service, Mono<? extends String>> callGetEndpoint(Endpoint endpoint) {

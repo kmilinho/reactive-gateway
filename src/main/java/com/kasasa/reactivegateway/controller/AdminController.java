@@ -1,9 +1,11 @@
 package com.kasasa.reactivegateway.controller;
 
 import com.kasasa.reactivegateway.dto.Endpoint;
+import com.kasasa.reactivegateway.dto.route.Route;
 import com.kasasa.reactivegateway.dto.service.Service;
 import com.kasasa.reactivegateway.exceptions.NotFoundException;
 import com.kasasa.reactivegateway.repository.EndpointRepository;
+import com.kasasa.reactivegateway.repository.RouteRepository;
 import com.kasasa.reactivegateway.repository.ServiceRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +13,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.Priority;
+import java.util.Collection;
 
 @RestController
 @RequestMapping("/admin")
@@ -20,10 +23,12 @@ public class AdminController {
 
     private ServiceRepository serviceRepository;
     private EndpointRepository endpointRepository;
+    private RouteRepository routeRepository;
 
-    public AdminController(ServiceRepository serviceRepository, EndpointRepository endpointRepository) {
+    public AdminController(ServiceRepository serviceRepository, EndpointRepository endpointRepository, RouteRepository routeRepository) {
         this.serviceRepository = serviceRepository;
         this.endpointRepository = endpointRepository;
+        this.routeRepository = routeRepository;
     }
 
     @GetMapping("/service")
@@ -51,9 +56,9 @@ public class AdminController {
         return endpointRepository.getServiceEndpoints(serviceId);
     }
 
-    @GetMapping("/service/{serviceId}/endpoint/{endpointId}")
-    Mono<Endpoint> showServiceEndpoint(@PathVariable("serviceId") String serviceId, @PathVariable("endpointId") String endpointId) {
-        return endpointRepository.getServiceEndpoint(serviceId, endpointId)
+    @GetMapping("/service/{serviceId}/endpoint/{endpointPath}")
+    Mono<Endpoint> showServiceEndpoint(@PathVariable("serviceId") String serviceId, @PathVariable("endpointPath") String endpointPath) {
+        return endpointRepository.getServiceEndpoint(serviceId, endpointPath)
                 .switchIfEmpty(Mono.error(new NotFoundException()));
     }
 
@@ -62,9 +67,19 @@ public class AdminController {
         return endpointRepository.createEndpoint(serviceId, endpoint);
     }
 
-    @DeleteMapping("/service/{serviceId}/endpoint/{endpointId}")
-    Mono<Void> deleteEndpoint(@PathVariable("serviceId") String serviceId, @PathVariable("endpointId") String endpointId) {
-        return endpointRepository.delete(serviceId, endpointId);
+    @DeleteMapping("/service/{serviceId}/endpoint/{endpointPath}")
+    Mono<Void> deleteEndpoint(@PathVariable("serviceId") String serviceId, @PathVariable("endpointPath") String endpointPath) {
+        return endpointRepository.delete(serviceId, endpointPath);
+    }
+
+    @GetMapping("/route")
+    Collection<Route> showAllRoutes() {
+        return routeRepository.getAll();
+    }
+
+    @PostMapping("/route")
+    Route createRoute(@RequestBody Route route) {
+        return routeRepository.addRoute(route);
     }
 
     @RequestMapping("**")

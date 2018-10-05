@@ -1,4 +1,4 @@
-package com.kasasa.reactivegateway.dto;
+package com.kasasa.reactivegateway.dto.route;
 
 import com.kasasa.reactivegateway.middleware.MiddlewareType;
 import lombok.*;
@@ -20,5 +20,5 @@ public class Route {
 
     private List<MiddlewareType> inputMiddleware;
 
-    private List<Endpoint> endpoints;
+    private List<ServiceEndpoint> serviceEndpoints;
 }
