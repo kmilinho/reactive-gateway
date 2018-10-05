@@ -1,4 +1,4 @@
-package com.kasasa.reactivegateway.controler;
+package com.kasasa.reactivegateway.controller;
 
 import com.kasasa.reactivegateway.dto.service.ResolveInfo;
 import com.kasasa.reactivegateway.dto.service.ResolveMethod;
