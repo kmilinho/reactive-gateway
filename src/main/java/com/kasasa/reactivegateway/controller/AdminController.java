@@ -33,43 +33,41 @@ public class AdminController {
 
     @GetMapping("/service")
     Flux<Service> showAllServices() {
-        return serviceRepository.getAllServices();
+        return Flux.fromIterable(serviceRepository.getAllServices());
     }
 
     @GetMapping("/service/{id}")
     Mono<Service> getServiceById(@PathVariable("id") String serviceId) {
-        return serviceRepository.getById(serviceId)
+        return Mono.justOrEmpty(serviceRepository.getById(serviceId))
                 .switchIfEmpty(Mono.error(new NotFoundException()));
     }
 
     @PostMapping("/service")
-    Mono<Service> createService(@RequestBody Mono<Service> inputService) {
-        return serviceRepository.addService(inputService).map(
-                (service) -> {
-                    endpointRepository.getCreateEndpointsForService(service.getId());
-                    return service;
-                });
+    Service createService(@RequestBody Service service) {
+        serviceRepository.addService(service);
+        endpointRepository.getCreateEndpointsForService(service.getId());
+        return service;
     }
 
     @GetMapping("/service/{id}/endpoint")
     Flux<Endpoint> showAllServiceEndpoints(@PathVariable("id") String serviceId) {
-        return endpointRepository.getServiceEndpoints(serviceId);
+        return Flux.fromIterable(endpointRepository.getServiceEndpoints(serviceId));
     }
 
     @GetMapping("/service/{serviceId}/endpoint/{endpointPath}")
     Mono<Endpoint> showServiceEndpoint(@PathVariable("serviceId") String serviceId, @PathVariable("endpointPath") String endpointPath) {
-        return endpointRepository.getServiceEndpoint(serviceId, endpointPath)
+        return Mono.justOrEmpty(endpointRepository.getServiceEndpoint(serviceId, endpointPath))
                 .switchIfEmpty(Mono.error(new NotFoundException()));
     }
 
     @PostMapping("/service/{id}/endpoint")
-    Mono<Endpoint> createEndpoint(@RequestBody Mono<Endpoint> endpoint, @PathVariable("id") String serviceId) {
+    Endpoint createEndpoint(@RequestBody Endpoint endpoint, @PathVariable("id") String serviceId) {
         return endpointRepository.createEndpoint(serviceId, endpoint);
     }
 
     @DeleteMapping("/service/{serviceId}/endpoint/{endpointPath}")
-    Mono<Void> deleteEndpoint(@PathVariable("serviceId") String serviceId, @PathVariable("endpointPath") String endpointPath) {
-        return endpointRepository.delete(serviceId, endpointPath);
+    void deleteEndpoint(@PathVariable("serviceId") String serviceId, @PathVariable("endpointPath") String endpointPath) {
+        endpointRepository.delete(serviceId, endpointPath);
     }
 
     @GetMapping("/route")

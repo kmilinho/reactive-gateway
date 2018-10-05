@@ -1,9 +1,8 @@
 package com.kasasa.reactivegateway.repository;
 
 import com.kasasa.reactivegateway.dto.service.Service;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,22 +17,20 @@ public class ServiceRepository {
 
     /**
      *
-     * @param monoService
+     * @param service
      * @return
      */
-    public Mono<Service> addService(Mono<Service> monoService) {
-        return monoService.map(service -> {
-            services.put(service.getId(), service);
-            return service;
-        });
+    public Service addService(Service service) {
+        services.put(service.getId(), service);
+        return service;
     }
 
     /**
      *
      * @return
      */
-    public Flux<Service> getAllServices() {
-        return Flux.fromIterable(services.values());
+    public Collection<Service> getAllServices() {
+        return services.values();
     }
 
     /**
@@ -41,7 +38,7 @@ public class ServiceRepository {
      * @param serviceId
      * @return
      */
-    public Mono<Service> getById(String serviceId) {
-        return Mono.justOrEmpty(services.get(serviceId));
+    public Service getById(String serviceId) {
+        return services.get(serviceId);
     }
 }

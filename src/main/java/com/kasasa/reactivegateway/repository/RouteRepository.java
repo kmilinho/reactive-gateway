@@ -1,5 +1,6 @@
 package com.kasasa.reactivegateway.repository;
 
+import com.kasasa.reactivegateway.dto.Endpoint;
 import com.kasasa.reactivegateway.dto.route.Route;
 import com.kasasa.reactivegateway.exceptions.BadRequestException;
 import com.kasasa.reactivegateway.exceptions.NotFoundException;
@@ -9,6 +10,7 @@ import reactor.core.publisher.Mono;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Component
 public class RouteRepository {
@@ -61,9 +63,13 @@ public class RouteRepository {
 
         try {
             route.getServiceEndpoints().iterator()
-                    .forEachRemaining(serviceEndpoint -> endpointRepository
-                            .getServiceEndpoint(serviceEndpoint.getServiceId(), serviceEndpoint.getEndpointPath())
-                            .switchIfEmpty(Mono.error(new NotFoundException())));
+                    .forEachRemaining(serviceEndpoint -> {
+                        Endpoint endpoint = endpointRepository
+                                .getServiceEndpoint(serviceEndpoint.getServiceId(), serviceEndpoint.getEndpointPath());
+                        if (Objects.isNull(endpoint)) {
+                            throw new NotFoundException();
+                        }
+                    });
         } catch (NotFoundException e) {
             return false;
         }

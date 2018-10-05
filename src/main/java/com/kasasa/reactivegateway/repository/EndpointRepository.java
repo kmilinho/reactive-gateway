@@ -2,13 +2,11 @@ package com.kasasa.reactivegateway.repository;
 
 import com.kasasa.reactivegateway.dto.Endpoint;
 import com.kasasa.reactivegateway.exceptions.NotFoundException;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 public class EndpointRepository {
 
@@ -25,8 +23,8 @@ public class EndpointRepository {
      * @return
      * @throws NotFoundException
      */
-    public Mono<Endpoint> getServiceEndpoint(String serviceId, String endpointPath) throws NotFoundException {
-        return Mono.justOrEmpty(getEndpointsForServiceOrFail(serviceId).get(endpointPath));
+    public Endpoint getServiceEndpoint(String serviceId, String endpointPath) throws NotFoundException {
+        return getEndpointsForServiceOrFail(serviceId).get(endpointPath);
     }
 
     /**
@@ -35,18 +33,21 @@ public class EndpointRepository {
      * @return
      * @throws NotFoundException
      */
-    public Flux<Endpoint> getServiceEndpoints(String serviceId) throws NotFoundException {
-        return Flux.fromIterable(getEndpointsForServiceOrFail(serviceId).values());
+    public Collection<Endpoint> getServiceEndpoints(String serviceId) throws NotFoundException {
+        return getEndpointsForServiceOrFail(serviceId).values();
     }
 
     /**
      *
      * @param serviceId
-     * @param monoEndpoint
+     * @param endpoint
      * @return
      */
-    public Mono<Endpoint> createEndpoint(String serviceId, Mono<Endpoint> monoEndpoint) {
-        return monoEndpoint.map(saveEndpoint(serviceId));
+    public Endpoint createEndpoint(String serviceId, Endpoint endpoint) {
+        endpoint.setServiceId(serviceId);
+        getCreateEndpointsForService(serviceId).put(endpoint.getPath(), endpoint);
+
+        return endpoint;
     }
 
     /**
@@ -55,10 +56,8 @@ public class EndpointRepository {
      * @param endpointPath
      * @return
      */
-    public Mono<Void> delete(String serviceId, String endpointPath) {
+    public void delete(String serviceId, String endpointPath) {
         getEndpointsForServiceOrFail(serviceId).remove(endpointPath);
-
-        return Mono.empty();
     }
 
     /**
@@ -76,15 +75,6 @@ public class EndpointRepository {
         }
 
         return endpoints;
-    }
-
-    private Function<Endpoint, Endpoint> saveEndpoint(String serviceId) {
-        return endpoint -> {
-            endpoint.setServiceId(serviceId);
-            getCreateEndpointsForService(serviceId).put(endpoint.getPath(), endpoint);
-
-            return endpoint;
-        };
     }
 
     private Map<String, Endpoint> getEndpointsForServiceOrFail(String serviceId) throws NotFoundException {

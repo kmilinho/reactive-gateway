@@ -48,7 +48,7 @@ public class GatewayController {
         Route route = routeResolver.resolve(request);
 
         List<Mono<String>> endpointMonoResponses = route.getServiceEndpoints().parallelStream()
-                .map(serviceEndpoint -> endpointRepository.getServiceEndpoint(serviceEndpoint.getServiceId(), serviceEndpoint.getEndpointPath()))
+                .map(serviceEndpoint -> Mono.justOrEmpty(endpointRepository.getServiceEndpoint(serviceEndpoint.getServiceId(), serviceEndpoint.getEndpointPath())))
                 .map(endpointCaller::call)
                 .collect(Collectors.toList());
 
