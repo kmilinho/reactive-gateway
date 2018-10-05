@@ -2,6 +2,7 @@ package com.kasasa.reactivegateway.controller;
 
 import com.kasasa.reactivegateway.dto.endpoint.Endpoint;
 import com.kasasa.reactivegateway.dto.service.Service;
+import com.kasasa.reactivegateway.exceptions.NotFoundException;
 import com.kasasa.reactivegateway.repository.EndpointRepository;
 import com.kasasa.reactivegateway.repository.ServiceRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -58,5 +59,10 @@ public class AdminController {
     @DeleteMapping("/service/{serviceId}/endpoint/{endpointId}")
     Mono<Void> deleteEndpoint(@PathVariable("serviceId") String serviceId, @PathVariable("endpointId") String endpointId) {
         return endpointRepository.delete(serviceId, endpointId);
+    }
+
+    @RequestMapping("**")
+    Mono<Void> defaultRoute(){
+        throw new NotFoundException();
     }
 }
