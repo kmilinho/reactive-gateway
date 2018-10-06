@@ -8,7 +8,7 @@ import com.kasasa.reactivegateway.RouteResolver;
 import com.kasasa.reactivegateway.dto.Endpoint;
 import com.kasasa.reactivegateway.dto.EndpointResponseTuple;
 import com.kasasa.reactivegateway.dto.route.Route;
-import com.kasasa.reactivegateway.middleware.MiddlewareEngine;
+import com.kasasa.reactivegateway.middleware.gateway.GatewayMiddlewareEngine;
 import com.kasasa.reactivegateway.repository.EndpointRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -33,19 +33,19 @@ public class GatewayController {
     private final EndpointCaller endpointCaller;
     private final EndpointRepository endpointRepository;
     private final JsonParser jsonParser;
-    private final MiddlewareEngine middlewareEngine;
+    private final GatewayMiddlewareEngine gatewayMiddlewareEngine;
 
     public GatewayController(RouteResolver routeResolver,
                              EndpointCaller endpointCaller,
                              JsonParser jsonParser,
                              EndpointRepository endpointRepository,
-                             MiddlewareEngine middlewareEngine
+                             GatewayMiddlewareEngine gatewayMiddlewareEngine
     ) {
         this.routeResolver = routeResolver;
         this.endpointCaller = endpointCaller;
         this.jsonParser = jsonParser;
         this.endpointRepository = endpointRepository;
-        this.middlewareEngine = middlewareEngine;
+        this.gatewayMiddlewareEngine = gatewayMiddlewareEngine;
     }
 
     @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -53,7 +53,7 @@ public class GatewayController {
 
         Route route = routeResolver.resolve(request);
 
-        request = middlewareEngine.applyMiddleware(route.getInputMiddleware(), request);
+        request = gatewayMiddlewareEngine.applyMiddleware(route.getMiddleware(), request);
 
         List<Mono<EndpointResponseTuple>> endpointResponseMonos = route.getServiceEndpoints().parallelStream()
                 .map(serviceEndpoint -> endpointRepository.getServiceEndpoint(serviceEndpoint.getServiceId(), serviceEndpoint.getEndpointPath()))

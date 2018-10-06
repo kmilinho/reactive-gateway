@@ -29,6 +29,9 @@ public class EndpointCaller {
         if (Objects.isNull(service)) {
             throw new NotFoundException();
         }
+
+        // TODO Apply service middleware to serviceClient
+
         return serviceClient.mutate()
                 .baseUrl(service.getResolveInfo().getUrl())
                 .build()

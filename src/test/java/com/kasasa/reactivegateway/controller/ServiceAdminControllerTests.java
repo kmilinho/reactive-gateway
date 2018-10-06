@@ -4,7 +4,7 @@ import com.kasasa.reactivegateway.dto.service.ResolveInfo;
 import com.kasasa.reactivegateway.dto.service.ResolveMethod;
 import com.kasasa.reactivegateway.dto.service.Service;
 import com.kasasa.reactivegateway.helpers.TestApiClient;
-import com.kasasa.reactivegateway.middleware.MiddlewareType;
+import com.kasasa.reactivegateway.middleware.service.MiddlewareType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +16,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
@@ -105,7 +104,7 @@ public class ServiceAdminControllerTests {
         //given
         Service receivedService = Service.builder()
                 .id("jsonplaceholder")
-                .inputMiddleware(Arrays.asList(MiddlewareType.AUTH_HEADER))
+                .middleware(List.of(MiddlewareType.AUTH_HEADER))
                 .resolveMethod(ResolveMethod.URL)
                 .resolveInfo(
                         ResolveInfo.builder()
@@ -123,7 +122,7 @@ public class ServiceAdminControllerTests {
                 result -> {
                     Service serviceBody = result.getResponseBody();
                     Assert.assertEquals("jsonplaceholder", serviceBody.getId());
-                    Assert.assertEquals(receivedService.getInputMiddleware(), serviceBody.getInputMiddleware());
+                    Assert.assertEquals(receivedService.getMiddleware(), serviceBody.getMiddleware());
                     Assert.assertEquals(receivedService.getResolveInfo(), serviceBody.getResolveInfo());
                 }
         );

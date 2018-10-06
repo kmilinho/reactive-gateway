@@ -1,30 +1,31 @@
-package com.kasasa.reactivegateway.middleware;
+package com.kasasa.reactivegateway.middleware.gateway;
 
-import com.kasasa.reactivegateway.middleware.gateway.AuthHeaderMiddleware;
-import com.kasasa.reactivegateway.middleware.gateway.LoggerMiddleware;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class MiddlewareResolver {
+public class GatewayMiddlewareResolver {
 
     private Map<MiddlewareType, Class<? extends Middleware>> middlewareTypeMap;
 
-    public MiddlewareResolver() {
+    public GatewayMiddlewareResolver() {
         middlewareTypeMap = new HashMap<>();
         middlewareTypeMap.put(MiddlewareType.AUTH_HEADER, AuthHeaderMiddleware.class);
         middlewareTypeMap.put(MiddlewareType.LOGGER, LoggerMiddleware.class);
     }
 
-    Constructor<? extends Middleware> resolve(MiddlewareType type) throws NoSuchMethodException {
+    Middleware resolve(MiddlewareType type) {
         if (!middlewareTypeMap.containsKey(type)) {
             throw new RuntimeException("Unknown middleware: " + type);
         }
 
-        return middlewareTypeMap.get(type).getConstructor(ServerHttpRequest.class);
+        try {
+            return middlewareTypeMap.get(type).getDeclaredConstructor().newInstance();
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

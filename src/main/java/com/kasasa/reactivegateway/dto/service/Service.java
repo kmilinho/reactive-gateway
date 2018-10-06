@@ -1,6 +1,6 @@
 package com.kasasa.reactivegateway.dto.service;
 
-import com.kasasa.reactivegateway.middleware.MiddlewareType;
+import com.kasasa.reactivegateway.middleware.service.MiddlewareType;
 import lombok.*;
 
 import java.util.List;
@@ -15,5 +15,5 @@ public class Service {
     private ResolveMethod resolveMethod;
     private ResolveInfo resolveInfo;
 
-    private List<MiddlewareType> inputMiddleware;
+    private List<MiddlewareType> middleware;
 }

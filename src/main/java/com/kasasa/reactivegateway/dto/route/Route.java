@@ -1,6 +1,6 @@
 package com.kasasa.reactivegateway.dto.route;
 
-import com.kasasa.reactivegateway.middleware.MiddlewareType;
+import com.kasasa.reactivegateway.middleware.gateway.MiddlewareType;
 import lombok.*;
 import java.util.List;
 
@@ -18,7 +18,7 @@ public class Route {
 
     private String gatewayPath;
 
-    private List<MiddlewareType> inputMiddleware;
+    private List<MiddlewareType> middleware;
 
     private List<ServiceEndpoint> serviceEndpoints;
 }

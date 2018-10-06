@@ -2,6 +2,7 @@ package com.kasasa.reactivegateway.middleware;
 
 import com.kasasa.reactivegateway.dto.route.ServiceEndpoint;
 import com.kasasa.reactivegateway.helpers.TestApiClient;
+import com.kasasa.reactivegateway.middleware.gateway.MiddlewareType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
