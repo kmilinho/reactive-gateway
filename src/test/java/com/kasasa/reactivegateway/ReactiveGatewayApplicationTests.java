@@ -3,6 +3,7 @@ package com.kasasa.reactivegateway;
 import com.kasasa.reactivegateway.dto.Parameter;
 import com.kasasa.reactivegateway.dto.route.ServiceEndpoint;
 import com.kasasa.reactivegateway.helpers.TestApiClient;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,7 +48,7 @@ public class ReactiveGatewayApplicationTests {
         String serviceId = "testResolvesRoute-service";
         String endpointPath1 = "/users/1";
         String endpointPath2 = "/todos/1";
-
+        String expectedFinalBody = "{\"userName\":\"Leanne Graham\",\"userEmail\":\"Sincere@april.biz\",\"taskTitle\":\"delectus aut autem\",\"isTaskCompleted\":false,\"authors\":[\"Yavor\",\"Camilo\"]}";
         String authorsServiceId = "authorsService";
         String autorsGetAllPath = "/hackathon/reactive-gateway/authors";
 
@@ -102,8 +103,7 @@ public class ReactiveGatewayApplicationTests {
                 .expectStatus().isOk()
                 .expectBody(String.class)
                 .consumeWith(body -> {
-                    System.out.println("it works: ");
-                    System.out.println(body.getResponseBody());
+                    Assert.assertEquals(expectedFinalBody, body.getResponseBody());
                 });
     }
 }
