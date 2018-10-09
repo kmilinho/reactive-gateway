@@ -1,11 +1,13 @@
 package com.kasasa.reactivegateway.controller;
 
+import com.kasasa.reactivegateway.dto.Parameter;
 import com.kasasa.reactivegateway.dto.route.Route;
 import com.kasasa.reactivegateway.dto.route.ServiceEndpoint;
 import com.kasasa.reactivegateway.helpers.TestApiClient;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.internal.runners.statements.FailOnTimeout;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -74,9 +76,17 @@ public class RouteAdminControllerTests {
         testApiClient.createService(serviceId, "https://jsonplaceholder.typicode.com");
         testApiClient.createEndpoint(serviceId, endpointPath);
 
+        var outputParameters = List.of(
+                Parameter.builder()
+                        .key("original")
+                        .mappedToKey("mapped")
+                        .build()
+        );
+
         List<ServiceEndpoint> endpoints = List.of(ServiceEndpoint.builder()
                 .serviceId(serviceId)
                 .endpointPath(endpointPath)
+                .outputParameters(outputParameters)
                 .build()
         );
 
@@ -91,6 +101,10 @@ public class RouteAdminControllerTests {
                     Assert.assertEquals(gatewayPath, route.getGatewayPath());
                     Assert.assertEquals(serviceId, route.getServiceEndpoints().get(0).getServiceId());
                     Assert.assertEquals(endpointPath, route.getServiceEndpoints().get(0).getEndpointPath());
+
+                    var outputParameter = route.getServiceEndpoints().get(0).getOutputParameters().get(0);
+                    Assert.assertEquals("original", outputParameter.getKey());
+                    Assert.assertEquals("mapped", outputParameter.getMappedToKey());
                 });
     }
 

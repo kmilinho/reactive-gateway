@@ -56,8 +56,15 @@ public class GatewayController {
         request = gatewayMiddlewareEngine.applyMiddleware(route.getMiddleware(), request);
 
         List<Mono<EndpointResponseTuple>> endpointResponseMonos = route.getServiceEndpoints().parallelStream()
-                .map(serviceEndpoint -> endpointRepository.getServiceEndpoint(serviceEndpoint.getServiceId(), serviceEndpoint.getEndpointPath()))
-                .map(mapToEndpointResponse())
+                .map(serviceEndpoint -> {
+                    var endpoint = endpointRepository.getServiceEndpoint(serviceEndpoint.getServiceId(), serviceEndpoint.getEndpointPath());
+                    return endpointCaller.call(endpoint)
+                            .map(monoResponse -> EndpointResponseTuple.builder()
+                                    .endpoint(endpoint)
+                                    .endpointResponse(monoResponse)
+                                    .outputParameters(serviceEndpoint.getOutputParameters())
+                                    .build());
+                        })
                 .collect(Collectors.toList());
 
         return Flux.mergeSequential(endpointResponseMonos)
@@ -65,7 +72,7 @@ public class GatewayController {
 
                     var newResponse = jsonParser.parse(endpointResponseTuple.getEndpointResponse()).getAsJsonObject();
 
-                    var wantedParameters = endpointResponseTuple.getEndpoint().getOutputParameters();
+                    var wantedParameters = endpointResponseTuple.getOutputParameters();
                     if (Objects.nonNull(wantedParameters)) {
                         newResponse.entrySet().forEach(entry -> {
 
@@ -79,14 +86,5 @@ public class GatewayController {
                     }
                 })
                 .map(JsonElement::toString);
-    }
-
-    private Function<Endpoint, Mono<EndpointResponseTuple>> mapToEndpointResponse() {
-        return endpoint -> endpointCaller.call(endpoint)
-                .map(monoResponse -> EndpointResponseTuple.builder()
-                        .endpoint(endpoint)
-                        .endpointResponse(monoResponse)
-                        .build()
-                );
     }
 }

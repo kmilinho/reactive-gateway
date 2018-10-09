@@ -71,23 +71,26 @@ public class ReactiveGatewayApplicationTests {
                 Parameter.builder().key("authors").mappedToKey("authors").build()
         );
 
-        testApiClient.createEndpoint(serviceId, endpointPath1, parameters1);
-        testApiClient.createEndpoint(serviceId, endpointPath2, parameters2);
-        testApiClient.createEndpoint(authorsServiceId, autorsGetAllPath, parameters3);
+        testApiClient.createEndpoint(serviceId, endpointPath1);
+        testApiClient.createEndpoint(serviceId, endpointPath2);
+        testApiClient.createEndpoint(authorsServiceId, autorsGetAllPath);
 
 
         List<ServiceEndpoint> endpoints = List.of(
                 ServiceEndpoint.builder()
                         .serviceId(serviceId)
                         .endpointPath(endpointPath1)
+                        .outputParameters(parameters1)
                         .build(),
                 ServiceEndpoint.builder()
                         .serviceId(serviceId)
                         .endpointPath(endpointPath2)
+                        .outputParameters(parameters2)
                         .build(),
                 ServiceEndpoint.builder()
                         .serviceId(authorsServiceId)
                         .endpointPath(autorsGetAllPath)
+                        .outputParameters(parameters3)
                         .build()
         );
 
