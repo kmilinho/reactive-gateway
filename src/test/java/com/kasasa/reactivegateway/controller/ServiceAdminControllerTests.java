@@ -98,7 +98,6 @@ public class ServiceAdminControllerTests {
         );
     }
 
-
     @Test
     public void testItCanCreateService() {
         //given
